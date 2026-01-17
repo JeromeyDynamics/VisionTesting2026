@@ -133,31 +133,31 @@ public class Drive extends SubsystemBase {
    *
    * @return
    */
-  public Command alignToCenterReef() {
-    return new AlignToPose(
-        this,
-        () -> {
-          Pose2d[] reefPoses = FieldConstants.ReefCenterPositions;
-          Pose2d currentPose = getPose();
+  // public Command alignToCenterReef() {
+  //   return new AlignToPose(
+  //       this,
+  //       () -> {
+  //         Pose2d[] reefPoses = FieldConstants.ReefCenterPositions;
+  //         Pose2d currentPose = getPose();
 
-          int closestPose = 0;
-          double closestDistance = Double.MAX_VALUE;
+  //         int closestPose = 0;
+  //         double closestDistance = Double.MAX_VALUE;
 
-          // Calculate distance to each reef pose and select closest one
-          for (int i = 0; i < 6; i++) {
-            Transform2d currentToTarget = AllianceFlipUtil.apply(reefPoses[i]).minus(currentPose);
-            double distance = currentToTarget.getTranslation().getNorm();
+  //         // Calculate distance to each reef pose and select closest one
+  //         for (int i = 0; i < 6; i++) {
+  //           Transform2d currentToTarget = AllianceFlipUtil.apply(reefPoses[i]).minus(currentPose);
+  //           double distance = currentToTarget.getTranslation().getNorm();
 
-            if (distance < closestDistance) {
-              closestPose = i;
-              closestDistance = distance;
-            }
-          }
+  //           if (distance < closestDistance) {
+  //             closestPose = i;
+  //             closestDistance = distance;
+  //           }
+  //         }
 
-          return AllianceFlipUtil.apply(FieldConstants.ReefCenterPositions[closestPose]);
-        },
-        false);
-  }
+  //         return AllianceFlipUtil.apply(FieldConstants.ReefCenterPositions[closestPose]);
+  //       },
+  //       false);
+  // }
 
   @Override
   public void periodic() {
@@ -373,5 +373,39 @@ public class Drive extends SubsystemBase {
     ChassisSpeeds speeds =
         new ChassisSpeeds(xAxis * maxSpeedMetersPerSec, 0.0, zAxis * getMaxAngularSpeedRadPerSec());
     runVelocity(speeds);
+  }
+
+  /**
+   * Gets the pose of the closest reef
+   *
+   * @param leftSide determines what side of the reef your on
+   */
+  public Pose2d getClosestReefScoringPose(boolean leftSide) {
+    Pose2d[] reefPoses = FieldConstants.ReefScoringPositions;
+    Pose2d currentPose = getPose();
+
+    int closestPose = -1;
+    double closestDistance = Double.MAX_VALUE;
+
+    for (int i = 0; i < reefPoses.length; i++) {
+      boolean isLeft = i % 2 == 0;
+      if (leftSide != isLeft) {
+        continue;
+      }
+
+      Transform2d currentToTarget = AllianceFlipUtil.apply(reefPoses[i]).minus(currentPose);
+      double distance = currentToTarget.getTranslation().getNorm();
+
+      if (distance < closestDistance) {
+        closestPose = i;
+        closestDistance = distance;
+      }
+    }
+
+    if (closestPose < 0) {
+      return currentPose;
+    }
+
+    return AllianceFlipUtil.apply(reefPoses[closestPose]);
   }
 }
