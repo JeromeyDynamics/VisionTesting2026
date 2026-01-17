@@ -170,8 +170,8 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.a().onTrue(pathfindToClosestReef(true));
-    controller.b().onTrue(pathfindToClosestReef(false));
+    // controller.a().onTrue(pathfindToClosestReef(true));
+    // controller.b().onTrue(pathfindToClosestReef(false));
 
     // Auto aim command example
     @SuppressWarnings("resource")
@@ -201,11 +201,11 @@ public class RobotContainer {
     return Commands.none();
   }
 
-  public Command pathfindToClosestReef(boolean leftSide) {
-    return Commands.defer(
-        () ->
-            AutoBuilder.pathfindToPose(
-                drive.getClosestReefScoringPose(leftSide), reefPathfindConstraints, 0.0),
-        Set.of(drive));
-  }
+//   public Command pathfindToClosestReef(boolean leftSide) {
+//     return Commands.defer(
+//         () ->
+//             AutoBuilder.pathfindToPose(
+//                 drive.getClosestReefScoringPose(leftSide), reefPathfindConstraints, 0.0),
+//         Set.of(drive));
+//   }
 }
